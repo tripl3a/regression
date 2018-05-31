@@ -1,0 +1,81 @@
+---
+title: "Regression - Exercises 5"
+author: "Arndt Allhorn"
+date: "May 31, 2018"
+output: html_notebook
+---
+
+# Exercise 1
+
+Simulate artificial regression data using the follwing R code:
+
+```{r}
+n <- 30
+set.seed(19062017) ## to always obtain the same numbers
+eps <- rnorm(n, sd=0.5)
+x1 <- rnorm(n); x2 <- rnorm(n); x3 <- rnorm(n)
+y <- 1 + x1 + eps
+```
+
+Estimate the following linear models:
+
+```{r}
+lm1 <- lm( y ~ x1 )
+lm2 <- lm( y ~ x1 + x2 )
+lm3 <- lm( y ~ x1 + x3 )
+lm4 <- lm( y ~ x1 + x2 + x3)
+```
+
+###### (a) Which of the coefficients in which of the models are significant at level 5%?
+
+```{r}
+summary(lm1)
+summary(lm2)
+summary(lm3)
+summary(lm4)
+```
+
+Only the x1 coefficient is significant in all the models.
+
+######(b) Which of the models could be compared by F tests? Do these tests in R and comment the results.
+
+```{r}
+# anova performs a model f test
+anova(lm1, lm2)
+anova(lm1, lm3)
+anova(lm1, lm4)
+```
+
+```{r}
+# anova performs a model f test
+anova(lm2, lm3)
+anova(lm2, lm4)
+```
+
+In the output of `anova(lm2, lm3)` there is no p value. The models were defined as:  
+`lm2 <- lm( y ~ x1 + x2 )`  
+`lm3 <- lm( y ~ x1 + x3 )`
+
+```{r}
+# anova performs a model f test
+anova(lm3, lm4)
+```
+
+All the p values are pretty big, so there is no significant imporvement compared to the linear model `lm1 <- lm( y ~ x1 )`.
+
+###### (c) Draw a scatterplot of x1 and y and plot the regression line corresponding to model lm1. Do also calculate the R² values for all models (how could you obtain the value from the model in R?).
+
+```{r}
+plot(x1,y)
+beta <- lm1$coefficients
+curve(beta[1] + beta[2]*x, lwd=2, col="red", add=T)
+```
+
+If you look at the R code above that generated the data: Which of the parameters
+should be changed such that the R² values for all four models do increase? 
+(How does this change the plot?)
+
+Increasing `sd`: R² goes u
+Decreasing `sd`: R² goes down
+If you set the standard deviation to zero (i.e. `eps <- rnorm(n, sd=0)`) you'll get the maximum R² value of 1. 
+All the fitted values will lie exactly on the predicted straight line.
