@@ -1,0 +1,79 @@
+---
+title: "Regression - Exercises 4"
+author: "Arndt Allhorn"
+date: "May 24, 2018"
+output: html_notebook
+---
+
+# Exercise 2
+
+```{r setup, include=FALSE}
+library(AER)
+```
+
+```{r}
+data(CPS1985)
+males <- CPS1985[CPS1985$gender=="male",]
+females <- CPS1985[CPS1985$gender=="female",]
+```
+  
+Estimate for both subsamples a multiple regression model for log(wage) on years of education, 
+years of professional experience and squared experience. 
+Consider the output from the respective summary for each of the subsamples:
+
+```{r}
+lmm = lm(log(wage)~ education + experience + I(experience^2), data=males)
+summary(lmm)
+```
+
+```{r}
+lmf = lm(log(wage)~ education + experience + I(experience^2), data=females)
+summary(lmf)
+```
+#### (a) How could you determine the sample sizes of the two subsamples?
+
+degrees of freedom + number of coefficients = sample size
+
+#### (b) Which of the coefficients are sigficantly different from 0, if we assume a level of significance of 5%? 
+(Does this change if we would use 1%?)
+
+At alpha of 5% no coefficient is signifiant.
+But at alpha of 1% the _I(experience^2)_ coefficient is siginificant. 
+
+#### (c) How could you calculate the values of RSS for both models? Would it be useful to compare them?
+
+To calculate RSS you have to sum up all the squared residuals: 
+$$RSS = \sum(\hat y-y)^2$$
+
+```{r}
+sum(lmm$residuals^2)
+deviance(lmm)
+```
+```{r}
+sum(lmf$residuals^2)
+deviance(lmf)
+```
+
+#### (d) Predict log(wage) for both models for a person with 12 years of education and 10 year of professional experience. What do you observe?
+
+```{r}
+predict(lmm, data.frame(education=12, experience=10))
+predict(lmf, data.frame(education=12, experience=10))
+```
+
+There is a difference between females and males!
+
+#### (e) Generate graphs for the marginal effects of experience for both models, i.e. display the estimated quadratic functions while setting education equal to 12 for example. (Note that 12 is the median of education in the full sample.)
+
+```{r}
+xrange <- range(males$experience, females$experience)
+beta <- lmm$coefficients
+curve(beta[1] + beta[2]*12 + beta[3]*x + beta[4]*x^2, lwd=2, xlim=xrange, col="red")
+beta <- lmf$coefficients
+curve(beta[1] + beta[2]*12 + beta[3]*x + beta[4]*x^2, lwd=2, add=T, col="blue")
+legend("topleft",c("males","females"),lwd=2,col=c("red","blue"))
+```
+
+
+
+
