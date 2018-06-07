@@ -1,0 +1,97 @@
+---
+title: "Regression - Exercises 6"
+author: "Arndt Allhorn"
+date: "June 7, 2018"
+output: html_notebook
+---
+
+# Exercise 1
+
+Consider normal random variables Y1, ... , Yn which are iid from the N(µ, σ²) distribution. 
+We assume that σ² is known.  
+
+Use the maximum likelihood principle to find an estimate for the expectation parameter µ.
+
+---
+
+Generate some data.
+
+```{r}
+set.seed(1001)
+N <- 100
+x <- rnorm(N, mean=3, sd=2)
+mean(x)
+sd(x)
+```
+```{r fig.width=4}
+hist(x)
+```
+
+Plot the likelihood of observing the data.
+
+```{r fig.width=5}
+plot(x, dnorm(x, mean=3, sd=2), main="likelihood")
+```
+
+Define the log-likelihood function.
+
+```{r}
+LL <- function(mu, sigma) {
+     R = suppressWarnings(dnorm(x, mu, sigma))
+     return(-sum(log(R)))
+ }
+```
+
+Apply MLE to estimate the two parameters (mean and standard deviation) for which the normal distribution best describes the data.
+
+```{r}
+library(stats4)
+mle(LL, start=list(mu=1, sigma=1))
+```
+  
+A note of caution: if your initial guess for the parameters is too far off, then things can go seriously wrong!  
+
+```{r}
+mle(LL, start = list(mu = 0, sigma=1))
+```
+
+Source: https://datawookie.netlify.com/blog/2013/08/fitting-a-model-by-maximum-likelihood/
+
+# Exercise 2
+
+Generate artificial data (say a sample of size n = 100) from the N(1,4) distribution.
+
+```{r}
+set.seed(1001)
+N <- 100
+x <- rnorm(N, mean=1, sd=2)
+mean(x)
+sd(x)
+```
+
+(a) Use the log-likelihood function from the previous Exercise. Plot it as a curve using the sample data and the known value σ²=4.
+
+```{r}
+par(mfrow=c(1,2))
+plot(x, dnorm(x, mean=1, sd=2), main="likelihood")
+plot(x, log(dnorm(x, mean=1, sd=2)), main="log-likelihood")
+```
+
+(b) Optimize the log-likelihood numerically using R (check for example `?optimize`). Add the estimated value µ.hat to your plot to check if it is really at the maximum. (You may also add the true value µ=1.)
+
+>Maximizing the log-likelihood of the parameters given a dataset is strictly equivalent as minimizing the negative log-likelihood.
+
+```{r}
+mle.results <- optimize(function(mu) {LL(mu, sigma=2)},
+                        interval = c(0, 2),
+                        maximum = FALSE) # LL returns neg. log-likelihood
+ 
+mle.results
+```
+
+```{r}
+plot(x, log(dnorm(x, mean=1, sd=2)), main="log-likelihood")
+abline(v=mle.results$minimum, col="green")  #max. lik. estimate
+abline(v=1, col="gray")   #true mean 
+```
+
