@@ -74,6 +74,56 @@ curve(beta[1] + beta[2]*12 + beta[3]*x + beta[4]*x^2, lwd=2, add=T, col="blue")
 legend("topleft",c("males","females"),lwd=2,col=c("red","blue"))
 ```
 
+# Exercise 3
+
+We generate artificial regression data:
+
+```{r}
+set.seed(123)
+x <- runif(10)
+y <- 2 - 2*x + 0.5*x^2 + rnorm(length(x), 0.2)
+lm1 <- lm( y ~ x )
+lm2 <- lm( y ~ x + I(x^2))
+lm3 <- lm( y ~ x + I(x^2) + I(x^3) )
+```
+
+#### (a) Do a scatterplot of the data and graphically display the 3 estimated regression functions.
+
+```{r}
+plot(x,y)
+curve(lm1$coefficients[1] + lm1$coefficients[2]*x, add=T, col="green", lwd=2)
+curve(lm2$coefficients[1] + lm2$coefficients[2]*x + lm2$coefficients[3]*x^2, add=T, col="red", lwd=2)
+curve(lm3$coefficients[1] + lm3$coefficients[2]*x + lm3$coefficients[3]*x^2 + lm3$coefficients[4]*x^3, add=T, col="blue", lwd=2)
+legend("topright",c("linear","quadratic","cubic"),lwd=2,col=c("green","red","blue"))
+```
+
+#### (b) The R function `model.matrix` allows to extract the design matrix (X matrix) from an estimated regression model. Use this to calculate the hat matrices P1; P2; P3. Verify with R that all 3 matrices are projection matrices (which properties have to be checked?) and that their traces equal `p+1`.
+
+```{r}
+P1 = model.matrix(lm1); print(P1)
+P2 = model.matrix(lm2); print(P2)
+P3 = model.matrix(lm3); print(P3)
+```
+
+From the script:  
+
+> Remark: P is a projection matrix as the matrix is symmetric and idempotent, i.e.  
+> P^T = P and P·P=P^2=P  
+> (the same does hold for I − P).
+
+```{r}
+sum(diag(P1)); sum(diag(P2)); sum(diag(P3))
+```
 
 
+#### (c) Do also verify with R that:
+P2·P1=P1; P3·P1=P1 and P3·P2=P2
+
+(Remark: For our models we have lm1 ⊆ lm2 ⊆ lm3. So, if we already projected
+into the space spanned by the column vectors of a smaller design matrix, then the
+projection on to a larger space does not change the result anymore.)
+
+```{r}
+# TODO
+```
 
