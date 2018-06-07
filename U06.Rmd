@@ -79,7 +79,7 @@ plot(x, log(dnorm(x, mean=1, sd=2)), main="log-likelihood")
 
 (b) Optimize the log-likelihood numerically using R (check for example `?optimize`). Add the estimated value µ.hat to your plot to check if it is really at the maximum. (You may also add the true value µ=1.)
 
->Maximizing the log-likelihood of the parameters given a dataset is strictly equivalent as minimizing the negative log-likelihood.
+>Maximizing the log-likelihood of the parameters given a dataset is strictly equivalent as minimizing the negative log-likelihood. 
 
 ```{r}
 mle.results <- optimize(function(mu) {LL(mu, sigma=2)},
@@ -95,3 +95,4 @@ abline(v=mle.results$minimum, col="green")  #max. lik. estimate
 abline(v=1, col="gray")   #true mean 
 ```
 
+Interesting read: [ML notes: Why the log-likelihood?](https://blog.metaflow.fr/ml-notes-why-the-log-likelihood-24f7b6c40f83)
