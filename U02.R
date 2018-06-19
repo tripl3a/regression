@@ -62,22 +62,17 @@ cor(sp$price.usd, sp$sales)
 # where the given input is the vector (c0, c1, c2, ..., cp). 
 # The polynomial shall be calculated on a grid of x-values in [−5;5].
 
-v <- c(3,6,9,6,8)
-sum(v * 2^(sort(rank(v, ties.method=c("first")))-1))#to the power of 1..n
-3 + 6*2 + 9*2^2 + 6*2^3 + 8*2^4 #test case
-
-calc.poly <- function(vec, iv=c(-5,5), show.plot=FALSE, color="black", plot.type="p", title="Polynomial Plot") {
-  x.vals <- seq(iv[1],iv[2])
-  px <- rep(NA,length(x.vals))
-  i = 1
-  for (x in x.vals) {
-    px[i] <- sum(vec * x^(sort(rank(vec, ties.method=c("first")))-1))#to the power of 1..n  
-    i = i+1
+calc.poly <- function(c, iv=c(-5,5), show.plot=F, color="black", line.style=1, title="Polynomial Plot") {
+  xgrid=seq(-5,5,by=0.1)
+  result = rep(c[1],length(xgrid))
+  for (i in 2:length(c)) {
+    result = result + c[i]*xgrid^(i-1)
   }
-  if (show.plot) { plot(px, col=color, type=plot.type, main=title) }
-  return(px)
+  if (show.plot) { plot(xgrid, result, col=color, type="l", lty=line.style, main=title) }
+  return(result)
 }
 
+v <- c(10,1,-2,4)
 res <- calc.poly(v); res
 
 # (b) Add an optional way to let the user modify the interval for the x-values.
@@ -88,9 +83,9 @@ res <- calc.poly(v,c(-20,20)); res
 # (c) Add another option to graph the function. The user should also have the possibility to
 # change the color, linestyle and title of the graph.
 
-res <- calc.poly(v,c(-10,10)); res
-res <- calc.poly(v,c(-10,10), show.plot=TRUE); res
-res <- calc.poly(v,c(-10,10), show.plot=TRUE, color="red"); res
-res <- calc.poly(v,c(-10,10), show.plot=TRUE, plot.type="l"); res
-res <- calc.poly(v,c(-10,10), show.plot=TRUE, title="custom plot title"); res
+res <- calc.poly(v,c(-50,50)); res
+res <- calc.poly(v,c(-50,50), show.plot=TRUE); res
+res <- calc.poly(v,c(-50,50), show.plot=TRUE, color="red"); res
+res <- calc.poly(v,c(-50,50), show.plot=TRUE, line.style=2); res
+res <- calc.poly(v,c(-50,50), show.plot=TRUE, title="custom plot title"); res
 
