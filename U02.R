@@ -89,3 +89,29 @@ res <- calc.poly(v,c(-50,50), show.plot=TRUE, color="red"); res
 res <- calc.poly(v,c(-50,50), show.plot=TRUE, line.style=2); res
 res <- calc.poly(v,c(-50,50), show.plot=TRUE, title="custom plot title"); res
 
+##################
+### Exercise 4 ###
+##################
+
+n = 100
+sigma = sqrt(20)
+
+x.samp = rnorm(n,0,1)
+error = rnorm(n,0,sigma)
+
+b0 = 3
+b1 = 2
+y = b0+b1*x.samp+error
+
+plot(x.samp,y)
+
+lm.out<-lm(y~x.samp)
+abline(lm.out)
+lm.out$coefficients
+
+curve(b0+b1*x, add=T, col="green") # "true" line
+
+out = matrix(c(x,y),ncol=2)
+colnames(out)=c("x","y")
+filepath = paste(dirname(rstudioapi::getSourceEditorContext()$path),"/U02-4.csv",sep="")
+write.csv(out, filepath, row.names=F, quote=F)
