@@ -5,94 +5,85 @@ date: "June 7, 2018"
 output: html_notebook
 ---
 
-# Exercise 1
+# Exercise 2
 
-Consider normal random variables Y1, ... , Yn which are iid from the N(µ, σ²) distribution. 
-We assume that σ² is known.  
-
-Use the maximum likelihood principle to find an estimate for the expectation parameter µ.
-
----
-
-Generate some data.
+Generate artificial data (say a sample of size n = 100) from the N(1,4) distribution.
 
 ```{r}
-set.seed(1001)
+set.seed(666)
 N <- 100
-x <- rnorm(N, mean=3, sd=2)
-mean(x)
-sd(x)
+obs <- rnorm(N, mean=1, sd=2)
+mean(obs)
+sd(obs)
 ```
 ```{r fig.width=4}
-hist(x)
-```
-
-Plot the likelihood of observing the data.
-
-```{r fig.width=5}
-plot(x, dnorm(x, mean=3, sd=2), main="likelihood")
+hist(obs)
 ```
 
 Define the log-likelihood function.
 
 ```{r}
 LL <- function(mu, sigma) {
-     R = suppressWarnings(dnorm(x, mu, sigma))
-     return(-sum(log(R)))
+     R = suppressWarnings(dnorm(obs, mu, sigma))
+     return(-sum(log(R))) # negative b/c the stats4.mle() fn used below minimizes
  }
 ```
 
-Apply MLE to estimate the two parameters (mean and standard deviation) for which the normal distribution best describes the data.
-
-```{r}
-library(stats4)
-mle(LL, start=list(mu=1, sigma=1))
-```
-  
-A note of caution: if your initial guess for the parameters is too far off, then things can go seriously wrong!  
-
-```{r}
-mle(LL, start = list(mu = 0, sigma=1))
-```
-
-Source: https://datawookie.netlify.com/blog/2013/08/fitting-a-model-by-maximum-likelihood/
-
-# Exercise 2
-
-Generate artificial data (say a sample of size n = 100) from the N(1,4) distribution.
-
-```{r}
-set.seed(1001)
-N <- 100
-x <- rnorm(N, mean=1, sd=2)
-mean(x)
-sd(x)
-```
 
 (a) Use the log-likelihood function from the previous Exercise. Plot it as a curve using the sample data and the known value σ²=4.
 
 ```{r}
-par(mfrow=c(1,2))
-plot(x, dnorm(x, mean=1, sd=2), main="likelihood")
-plot(x, log(dnorm(x, mean=1, sd=2)), main="log-likelihood")
+
+wrapLL <- function(mu_vector,sigma) {
+  result = rep(NA,length(mu_vector))
+  for (i in 1:length(mu_vector)) {
+    result[i] = LL(mu_vector[i], sigma)
+  }
+  return(result)
+}
+curve(wrapLL(x, 2)*-1, from=-2, to=4, main="log-likelihood")
 ```
 
 (b) Optimize the log-likelihood numerically using R (check for example `?optimize`). Add the estimated value µ.hat to your plot to check if it is really at the maximum. (You may also add the true value µ=1.)
 
 >Maximizing the log-likelihood of the parameters given a dataset is strictly equivalent as minimizing the negative log-likelihood. 
 
+**Using `optimize`**
+
+To find estimate for `mu` given `sigma`.
+
 ```{r}
 mle.results <- optimize(function(mu) {LL(mu, sigma=2)},
                         interval = c(0, 2),
-                        maximum = FALSE) # LL returns neg. log-likelihood
+                        maximum = FALSE) # our LL returns negative values
  
 mle.results
 ```
 
 ```{r}
-plot(x, log(dnorm(x, mean=1, sd=2)), main="log-likelihood")
+curve(wrapLL(x, 2)*-1, from=-2, to=4, main="log-likelihood")
 abline(v=mle.results$minimum, col="green")  #max. lik. estimate
 abline(v=1, col="gray")   #true mean 
 ```
 
-Interesting read: [ML notes: Why the log-likelihood?](https://blog.metaflow.fr/ml-notes-why-the-log-likelihood-24f7b6c40f83)
+**Alternatively using `stats4.mle()`**
+
+Apply MLE to estimate both parameters (mean and standard deviation) for which the normal distribution best describes the data.
+
+```{r}
+library(stats4)
+mle(LL, start=list(mu=0.1, sigma=1))
+```
+  
+A note of caution: if your initial guess for the parameters is too far off, then things can go seriously wrong! 
+
+Sources:  
+[Fitting a Model by Maximum Likelihood](https://datawookie.netlify.com/blog/2013/08/fitting-a-model-by-maximum-likelihood/)  
+[ML notes: Why the log-likelihood?](https://blog.metaflow.fr/ml-notes-why-the-log-likelihood-24f7b6c40f83)
+
+
+
+
+
+
+
