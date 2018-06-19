@@ -5,20 +5,39 @@
 ### Exercise 1 ###
 ##################
 
-setwd("~/git-reps/regression/")
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-df <- read.csv2("Miete2003.csv")
+dat = read.csv2("Miete2003.csv")
+summary(dat)
 
-lm1.out <- lm(df$nettomiete ~ df$wohnflaeche)
+lm1 = lm(dat$nettomiete~dat$wohnflaeche)
+lm2 = lm(dat$nettomiete~dat$zimmerzahl)
 
-plot(lm1.out$fitted.values, lm1.out$residuals, asp=TRUE)
-plot(lm1.out$residuals, lm1.out$fitted.values, asp=TRUE)
+# show diagnostic plots
+par(mfrow=c(2,2))
+plot(lm1)
+plot(lm2)
+par(mfrow=c(1,1))
 
-1/dim(df)[1] * sum(lm1.out$fitted.values) 
-mean(df$nettomiete)
+plot(predict(lm1), residuals(lm1)) # there's heteroscedasticity
+plot(predict(lm2), residuals(lm2))
 
-round(1/dim(df)[1] * sum(lm1.out$residuals),10)
-round(mean(lm1.out$residuals),10)
+1/dim(dat)[1] * sum(predict(lm1))
+mean(dat$nettomiete)
+mean(predict(lm1))
+mean(predict(lm2))
+
+round(1/dim(dat)[1] * sum(residuals(lm1)),10)
+mean(residuals(lm1))
+mean(residuals(lm2))
+
+# as there's heteroscedasticity in lm1 let's try a model with log(Y) or sqrt(Y) [James et al. p.95]
+
+lm.log = lm(dat$nettomiete~I(log(dat$wohnflaeche)))
+lm.sqrt = lm(dat$nettomiete~I(sqrt(dat$wohnflaeche)))
+
+plot(predict(lm.log), residuals(lm.log))
+plot(predict(lm.sqrt), residuals(lm.sqrt))
 
 ##################
 ### Exercise 2 ###
