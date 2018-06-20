@@ -43,53 +43,40 @@ plot(predict(lm.sqrt), residuals(lm.sqrt))
 ### Exercise 2 ###
 ##################
 
-set.seed(666)
-x <- rnorm(500)
-e <- rnorm(500, mean=0, sd=0.25)
-y <- 1 + 2*x + x^2 + e
+n = 500
+x = rnorm(n)
+error = rnorm(n, sd=sqrt(0.25))
+y = 1 + 2*x + x^2 + error
 
-lm <- lm(y~x)
-lm2 <- lm(y ~ x + I(x^2))
-lm3 <- lm(y ~ x + I(x^2) + I(x^3))
+lm1 = lm(y ~ x)
+lm2 = lm(y ~ x + I(x^2))
+lm3 = lm(y ~ x + I(x^2) + I(x^3))
 
-summary(lm)$adj.r.squared
+summary(lm1)$r.squared
+summary(lm2)$r.squared
+summary(lm3)$r.squared
+
+summary(lm1)$adj.r.squared
 summary(lm2)$adj.r.squared
 summary(lm3)$adj.r.squared
 
 # Residual Sum of Squares (RSS)
-deviance(lm)
-deviance(lm2)
-deviance(lm3)
-
-par(mfrow=c(2,3))
-
-# regression line plots
-plot(x,y, pch=19, main="linear")
-abline(lm,col="blue")
-plot(x,y, pch=19, asp=TRUE, main="quadratic")
-curve(1 + 2*x + x^2, col="blue", add=TRUE)
-plot(x,y, pch=19, asp=TRUE, main="cubic")
-curve(1 + 2*x + x^2 + x^3, col="blue", add=TRUE)
+sum(residuals(lm1)^2); deviance(lm1)
+sum(residuals(lm2)^2); deviance(lm2)
+sum(residuals(lm3)^2); deviance(lm3)
 
 # residual plots    
-plot(x,residuals(lm), pch=19, col="red", ylim=c(-1,1), main="linear")
-plot(x, residuals(lm2), pch=19, col="red", ylim=c(-1,1), asp=TRUE, main="quadratic")
-plot(x, residuals(lm3), pch=19, col="red", ylim=c(-1,1), asp=TRUE, main="cubic")
+boxplot(residuals(lm1), residuals(lm2), residuals(lm3))
+plot(predict(lm1), residuals(lm1)) # clear pattern
+plot(predict(lm2), residuals(lm2))
+plot(predict(lm3), residuals(lm3))
 
-par(mfrow=c(1,1))
+# regression line plots
+plot(x,y)
+abline(lm1, col="red")
+curve(coef(lm2)[1] + x*coef(lm2)[2] + x^2*coef(lm2)[3], add=T, col="green", lwd=2)
+curve(coef(lm3)[1] + x*coef(lm3)[2] + x^2*coef(lm3)[3] + x^3*coef(lm3)[4], add=T, col="blue", lty=3)
 
-## ggplot experiment
-
-require(ggplot2)
-
-qplot(x,y)
-
-df <- data.frame(x,e,y)
-
-ggplot(df,aes(x,y)) + 
-  geom_point() +
-  stat_smooth(method = "lm", col = "red")
-  
 
 ##################
 ### Exercise 3 ###
