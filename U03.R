@@ -89,23 +89,44 @@ anova(lm1, lm2, lm3)
 ### Exercise 3 ###
 ##################
 
-set.seed(666)
-xsamp <- sample(x, 10)
+n = 10
+x = rnorm(n)
+error = rnorm(n, sd=sqrt(0.25))
+y = 1 + 2*x + x^2 + error
+
+lm1 = lm(y ~ x)
+lm2 = lm(y ~ x + I(x^2))
+lm3 = lm(y ~ x + I(x^2) + I(x^3))
 
 ### (a) Construct the matrix X for all 3 models (the matrix X is called “design matrix”).
 # according to p. 18 in the script
 
-X1 <- cbind(rep(1,10), xsamp); head(X1)
-X2 <- cbind(rep(1,10), xsamp, xsamp^2); head(X2)
-X3 <- cbind(rep(1,10), xsamp, xsamp^2, xsamp^3); head(X3)
+# manually construct the design matrices
+X1 = cbind(rep(1,n),x); colnames(X1)=c("intercept","x"); X1
+X2 = cbind(rep(1,n),x,x^2); colnames(X2)=c("intercept","x","x^2"); X2
+X3 = cbind(rep(1,n),x,x^2,x^3); colnames(X3)=c("intercept","x","x^2","x^3"); X3
 
-### (b) Check, if X and X.transposed_X are of full rank.
+# automatically get design matrices from LMs
+model.matrix(lm1)
+model.matrix(lm2)
+model.matrix(lm3)
+
+# check equality (should be 0)
+sum(X1-model.matrix(lm1))
+sum(X2-model.matrix(lm2))
+sum(X3-model.matrix(lm3))
+
+### (b) Check, if X and t(X)%*%X are of full rank.
 
 require(Matrix)
 rankMatrix(X1)[1]
 rankMatrix(X2)[1]
 rankMatrix(X3)[1]
-# => all 3 are full rank
+rankMatrix(t(X1)%*%X1)[1]
+rankMatrix(t(X2)%*%X2)[1]
+rankMatrix(t(X3)%*%X3)[1]
+
+# => all are full rank
 
 ### (c) Do also calculate the “hat matrix” for each of the 3 models.
 ### Determine (for each model) the trace and the eigenvalues of P.
@@ -115,7 +136,6 @@ round(solve((t(X1) %*% X1)),5)
 library(matlib)
 round(inv((t(X1) %*% X1)),5)
 
-
 ### Matrix–Vector Notation (Cont’d) (p. 20) ###
 ###  find the solution (LSE): ###
 P1 <- X1 %*% inv(t(X1) %*% X1) %*% t(X1)
@@ -124,10 +144,10 @@ P3 <- X3 %*% inv(t(X3) %*% X3) %*% t(X3)
 dim(P1); dim(P2); dim(P3)
 
 # the trace of a (square) matrix is just the sum of the diagonal elements
-library(psych)
-tr(P1)
-tr(P2)
-tr(P3)
+
+sum(diag(P1))
+sum(diag(P2))
+sum(diag(P3))
 
 P1.eig.val <- eigen(P1)$values
 P2.eig.val <- eigen(P2)$values
