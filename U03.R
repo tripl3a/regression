@@ -77,6 +77,13 @@ abline(lm1, col="red")
 curve(coef(lm2)[1] + x*coef(lm2)[2] + x^2*coef(lm2)[3], add=T, col="green", lwd=2)
 curve(coef(lm3)[1] + x*coef(lm3)[2] + x^2*coef(lm3)[3] + x^3*coef(lm3)[4], add=T, col="blue", lty=3)
 
+# quadratic model is appropriate as it yields the same high R² value as the cubic model.
+# the simpler model is to be preferred, but let's check with ANOVA.
+
+anova(lm1, lm2)
+anova(lm2, lm3)
+anova(lm1, lm2, lm3)
+
 
 ##################
 ### Exercise 3 ###
