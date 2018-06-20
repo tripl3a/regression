@@ -165,5 +165,57 @@ all.equal(round(P1%*%P1,5), round(P1,5))
 ImP <- diag(10)-P1
 all.equal(round(ImP%*%ImP,5), round(diag(10)-P1,5))
 
+##################
+### Exercise 4 ###
+##################
 
+require(AER)
+data(CPS1985)
+?CPS1985
 
+# Check the contents of the dataset (?CPS1985) and consider the variables 
+# Y = wage, X1 = education and X2 = experience. Estimate the following models:
+# regression of log(Y) on X1,
+# regression of log(Y) on X1 and X2,
+# regression of log(Y) on X1, X2 and X2^2.
+#------------------------------------------
+
+plot(CPS1985$education, CPS1985$wage)
+plot(CPS1985$education, log(CPS1985$wage))
+plot(CPS1985$experience, CPS1985$wage)
+plot(CPS1985$experience, log(CPS1985$wage))
+
+mod1 = lm(log(wage)~education, data=CPS1985); summary(mod1)
+mod2 = lm(log(wage)~education+experience, data=CPS1985); summary(mod2)
+mod3 = lm(log(wage)~education+experience+I(experience^2), data=CPS1985); summary(mod3)
+
+# Interprete the estimated coefficients. Do they make sense? 
+# (Plot a graph for the quadratic part of the 3rd model.)
+#------------------------------------------
+
+coef(mod1)
+coef(mod2)
+coef(mod3)
+
+plot(CPS1985$experience, coef(mod3)[3] * CPS1985$experience + coef(mod3)[4] * CPS1985$experience^2)
+
+# Analyse and compare the residuals for all 3 model fits (e.g. by comparing R2 
+# and by residual plots or by boxplots). What do you conclude with respect to 
+# which of the 3 models seems to be appropriate?
+#------------------------------------------
+
+summary(mod1)$r.squared
+summary(mod2)$r.squared
+summary(mod3)$r.squared
+summary(mod1)$adj.r.squared
+summary(mod2)$adj.r.squared
+summary(mod3)$adj.r.squared
+
+par(mfrow=c(1,3))
+plot(predict(mod1),residuals(mod1))
+plot(predict(mod2),residuals(mod2))
+plot(predict(mod3),residuals(mod3))
+par(mfrow=c(1,1))
+boxplot(residuals(mod1),residuals(mod2),residuals(mod3))
+
+anova(mod1,mod2,mod3)
