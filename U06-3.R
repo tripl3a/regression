@@ -1,64 +1,61 @@
-# exercise 3 from worksheet 6
+# Regression Worksheet 6
+# Exercise 3 
+
+# Important: Logistic regression: anova chi-square test vs. significance of coefficients (anova() vs summary() in R)
+# https://stats.stackexchange.com/questions/59879/logistic-regression-anova-chi-square-test-vs-significance-of-coefficients-ano)
 
 library(AER)
 data(Affairs)
 
-# a)
-Y<-rep(0, length(Affairs$affairs))
-data<-cbind(Affairs, Y)
-data[affairs!=0,]$Y<-1
+Affairs$affair=as.factor(as.numeric(Affairs$affairs>0))
+table(Affairs$affair)
 
-## or alternatively
-Affairs$Y <- as.numeric( Affairs$affairs > 0 )
-data <- Affairs
+Affairs = Affairs[ ,!(names(Affairs) %in% c("affairs"))] # drop column
 
-with(data, spineplot(factor(gender), factor(Y)))
-with(data, spineplot(factor(age), factor(Y)))
-with(data, spineplot(factor(religiousness), factor(Y)))
-with(data, spineplot(factor(education), factor(Y)))
+with(Affairs, spineplot(gender,affair))
+with(Affairs, spineplot(age,affair))
+with(Affairs, spineplot(yearsmarried,affair))
 
-with(data, spineplot(factor(yearsmarried), factor(Y)))
-with(data, spineplot(factor(Y)~children))
-with(data, spineplot(factor(rating), factor(Y)))
-with(data, spineplot(factor(occupation), factor(Y)))
-
-# b)
-glm1<-glm(Y~gender, data=data, family=binomial())
-summary(glm1)
-glm2<-glm(Y~yearsmarried, data=data, family=binomial())
-summary(glm2)
-glm3<-glm(Y~yearsmarried+children, data=data, family=binomial())
-summary(glm3)
-glm4<-glm(Y~yearsmarried+religiousness, data=data, family=binomial())
-summary(glm4)
-glm5<-glm(Y~yearsmarried+religiousness+gender, data=data, family=binomial())
-summary(glm5)
-glm6<-glm(Y~yearsmarried+religiousness+age, data=data, family=binomial())
-summary(glm6)
-glm7<-glm(Y~yearsmarried+religiousness+age+rating, data=data, family=binomial())
-summary(glm7)
-glm8<-glm(Y~yearsmarried+religiousness+age+rating+children, data=data, family=binomial())
+summary(Affairs)
+glm1 = glm(affair~age, data=Affairs, family=binomial()) 
+summary(glm1) # NOT significant
+glm2 = glm(affair~yearsmarried, data=Affairs, family=binomial())
+summary(glm2) # significant
+glm3 = glm(affair~yearsmarried+children, data=Affairs, family=binomial())
+summary(glm3) # only significant at 0.05 level
+glm4 = glm(affair~yearsmarried+religiousness, data=Affairs, family=binomial())
+summary(glm4) # both significant
+glm5 = glm(affair~yearsmarried+religiousness+education, data=Affairs, family=binomial())
+summary(glm5) # education NOT significant
+glm6 = glm(affair~yearsmarried+religiousness+occupation, data=Affairs, family=binomial())
+summary(glm6) # occupation NOT significant
+glm7 = glm(affair~yearsmarried+religiousness+rating, data=Affairs, family=binomial())
+summary(glm7) # all 3 siginificant
+glm8 = glm(affair~yearsmarried+religiousness+rating+age, data=Affairs, family=binomial())
 summary(glm8)
-glm9<-glm(Y~yearsmarried+religiousness+age+rating+education, data=data, family=binomial())
-summary(glm9)
-glm10<-glm(Y~yearsmarried+religiousness+age+rating+gender, data=data, family=binomial())
-summary(glm10)
-glm11<-glm(Y~yearsmarried+religiousness+age+rating+gender+occupation+children+education, data=data, family=binomial())
-summary(glm11)
+glmA = glm(affair~., data=Affairs, family=binomial())
+summary(glmA)
 
-anova(glm2,  glm10, test="Chisq")
-anova(glm3,  glm4,  test="Chisq")
-anova(glm4,  glm7,  test="Chisq")
-anova(glm7,  glm8,  test="Chisq")
-anova(glm7,  glm9,  test="Chisq")
-anova(glm7,  glm10, test="Chisq")
-anova(glm10, glm11, test="Chisq")
+# if not setting test="Chisq" parameter, anova just returns a analysis of deviance table for GLMs
+anova(glm2, glm4, glm7, glm7, glmA)
 
-## best model -> glm10
+# single model test
+anova(glm4, test="Chisq")
+anova(glm7, test="Chisq")
+anova(glm8, test="Chisq")
+anova(glmA, test="Chisq")
+summary(glmA)
+
+# model comparison
+anova(glm2, glm4, test="Chisq")
+anova(glm4, glm7, test="Chisq")
+anova(glm4, glm7, glm8, glmA, test="Chisq") # glmA is not significantly better than glm8
+
+# => glm8 seems to be the best
 
 require(MASS)
-step11 <- stepAIC(glm11)
-step11$anova # display results 
-summary(step11)
-## stepAIC also finds glm10 to be the best model
+stepAll <- stepAIC(glmA)
+stepAll$anova # display results 
+summary(stepAll)
 
+# => confirms glm8 to be best
